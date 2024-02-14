@@ -1,6 +1,4 @@
-from models import Note
 from utils import COMMANDS
-from typing import List
 
 
 class Terminal():
@@ -9,7 +7,8 @@ class Terminal():
     def __init__(self) -> None:
 
         self.commands: dict = COMMANDS
-        self.storage: list = []
+        self.storage: dict = {}  # База данных
+        self.transactions: list = []  # Текущая транзакция
 
     def all_commands(self) -> None:
         '''Вывод списка доступных команд.'''
@@ -18,45 +17,70 @@ class Terminal():
         print()
 
     def set_note(self, query) -> None:
-        '''СДЕЛАЛ Добавляет аргумент в БД.'''
+        '''Добавляет запись в БД.
+           Пример запроса-query: ['SET', 'A', '10']'''
 
         param = query[1]
         value = query[2]
+        if self.transactions:
+            self.transactions[-1][param] = value
         self.storage.append((param, value))
 
     def get_note(self, query) -> None:
+        '''Возвращает ранее сохраненную переменную.
+           Пример запроса-query: ['GET', 'A']'''
+        return self.storage.get(query[1], 'NULL')
 
-    def search_note(self, query) -> None:
-        '''Поиск записьа.'''
+    def unset_note(self, query) -> None:
+        '''Удаляет ранее установленную переменную.
+           Пример запроса-query: ['UNSET', 'A']'''
 
-        print('Вводите через знак ' + '/' + ' без пробелов', end='')
-        print(', если параметров несколько.')
+        pass
 
-        fields = input('\nВведите данные одной строкой: ').split('/')
-        try:
-            search_result = self.tempbase.search_note(fields)
-        except ValueError as e:
-            print(e)
-            return
-        if len(search_result) == 0:
-            print('Результат завершен. Ничего не найдено.\n')
-            return
-        print(f'Найдено {len(search_result)} совпадений:', end='\n')
+    def counts_note(self, query) -> None:
+        '''Подсчитывает количество переменных с заданным значением.
+           Пример запроса-query: ['COUNTS', '10']'''
+        pass
 
-        for note in search_result:
-            print(note)
+    def find_note(self, query) -> None:
+        '''Выводит найденные установленные переменные для
+           данного значения.
+           Пример запроса-query: ['FIND', '10']'''
+        pass
+
+    def end_note(self, query) -> None:
+        '''Завершить работу терминала.
+           Пример запроса-query: ['END']'''
+
+        print('\nТерминал завершает работу.')
+        exit()
+
+    def begin_note(self, query) -> None:
+        '''Начинает новую транзакцию.
+           Пример запроса-query: ['BEGIN']'''
+
+        self.transactions.append({})
+
+    def commit_note(self, query) -> None:
+        '''Подтверждает транзакцию.
+           Пример запроса-query: ['COMMIT']'''
+
+        pass
+
+    def rollback_note(self, query) -> None:
+        '''Отменяет транзакцию.
+           Пример запроса-query: ['ROLLBACK']'''
+
+        pass
+
+    def transaction_depth(self):
+        return len(self.transactions)
 
     def command_detect(self, query: str) -> None:
         '''Обработка и вызов команды.'''
 
         command = getattr(self, self.commands[query[0]][0])
         command(query)
-
-    def end_note(self, query) -> None:
-        '''Завершить работу терминала.'''
-
-        print('\nТерминал завершает работу.')
-        exit()
 
     def run(self) -> None:
         '''Запустить терминал.'''
@@ -66,35 +90,8 @@ class Terminal():
         self.all_commands()
 
         while True:
-            command = input('> ').split()
-            print(f'Вы ввели: {command}')
+            command = input('>' * (self.transaction_depth() + 1)).split()
             if command[0] not in self.commands.keys():
                 print('\nТакой команды не существует')
                 continue
             self.command_detect(command)
-    # --------------
-
-    def counts_note(self) -> int:
-        '''Получить количество записей в файле.'''
-        return len(file.readlines())
-
-    def post_note(self, note: Note) -> None:
-        '''Добавление записи.'''
-        file.write(str(self.current_id) + ' / ' + str(note))
-        self.current_id += 1
-
-    def find_note(self, query: List[str]) -> List[str]:
-        '''Поиск записи.'''
-        if all(i == '' for i in query):
-            raise ValueError('Вы ввели пустой запрос')
-        with open(FILE_PATH, 'r', encoding='utf-8') as file:
-            data = file.readlines()
-            result = []
-            for line in data:
-                note = line.strip()
-                if all(
-                    query[i] in note.split(' / ') for i in range(len(query))
-                ):
-                    result.append(note)
-            return result
-

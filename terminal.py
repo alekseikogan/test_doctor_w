@@ -29,24 +29,34 @@ class Terminal():
     def get_note(self, query) -> None:
         '''Возвращает ранее сохраненную переменную.
            Пример запроса-query: ['GET', 'A']'''
-        return self.storage.get(query[1], 'NULL')
+
+        result = self.storage.get(query[1], 'NULL')
+        print(' '.join(result))
 
     def unset_note(self, query) -> None:
         '''Удаляет ранее установленную переменную.
            Пример запроса-query: ['UNSET', 'A']'''
 
-        pass
+        if self.transactions:
+            self.transactions[-1][query[1]] = None
+        elif query[1] in self.storage:
+            del self.storage[query[1]]
 
     def counts_note(self, query) -> None:
         '''Подсчитывает количество переменных с заданным значением.
            Пример запроса-query: ['COUNTS', '10']'''
-        pass
+
+        result = list(self.storage.values()).count(query[1])
+        print(' '.join(result))
 
     def find_note(self, query) -> None:
         '''Выводит найденные установленные переменные для
            данного значения.
            Пример запроса-query: ['FIND', '10']'''
-        pass
+
+        result = [key for key, value in self.storage.items()\
+                  if value == query[1]]
+        print(' '.join(result))
 
     def end_note(self, query) -> None:
         '''Завершить работу терминала.
@@ -71,7 +81,8 @@ class Terminal():
         '''Отменяет транзакцию.
            Пример запроса-query: ['ROLLBACK']'''
 
-        pass
+        if self.transactions:
+            self.transactions.pop()
 
     def transaction_depth(self):
         return len(self.transactions)

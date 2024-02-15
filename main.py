@@ -20,19 +20,19 @@ class Terminal():
         '''Добавляет запись в БД.
            Пример запроса-query: ['SET', 'A', '10']'''
 
-        param = query[1]
+        key = query[1]
         value = query[2]
         if self.transactions:
-            self.transactions[-1][param] = value
+            self.transactions[-1][key] = value
         else:
-            self.storage[param] = value
+            self.storage[key] = value
 
     def get_note(self, query) -> None:
         '''Возвращает ранее сохраненную переменную.
            Пример запроса-query: ['GET', 'A']'''
 
         result = self.storage.get(query[1], 'NULL')
-        print(' '.join(result))
+        print(''.join(result))
 
     def unset_note(self, query) -> None:
         '''Удаляет ранее установленную переменную.
@@ -47,16 +47,14 @@ class Terminal():
         '''Подсчитывает количество переменных с заданным значением.
            Пример запроса-query: ['COUNTS', '10']'''
 
-        result = list(self.storage.values()).count(query[1])
-        print(' '.join(result))
+        print(list(self.storage.values()).count(query[1]))
 
     def find_note(self, query) -> None:
         '''Выводит найденные установленные переменные для
            данного значения.
            Пример запроса-query: ['FIND', '10']'''
 
-        result = [key for key, value in self.storage.items()\
-                  if value == query[1]]
+        result = [key for key, value in self.storage.items() if value == query[1]]
         print(' '.join(result))
 
     def end_note(self, query) -> None:

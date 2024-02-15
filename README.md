@@ -43,7 +43,7 @@ COMMIT - фиксация изменений текущей (самой внут
     cd test_doctor_w
     ```
 
-3. Запустить файл main.py (python 3.7 или версией выше)
+3. Запустить файл main.py (python 3.8 или версией выше)
 
     ```bash
     python main.py

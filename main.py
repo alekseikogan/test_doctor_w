@@ -31,6 +31,11 @@ class Terminal():
         '''Возвращает ранее сохраненную переменную.
            Пример запроса-query: ['GET', 'A']'''
 
+        if self.transactions:
+            result = self.transactions[-1].get(query[1], 'NULL')
+            print(result)
+            return
+
         result = self.storage.get(query[1], 'NULL')
         print(''.join(result))
 
@@ -39,7 +44,7 @@ class Terminal():
            Пример запроса-query: ['UNSET', 'A']'''
 
         if self.transactions:
-            self.transactions[-1][query[1]] = None
+            del self.transactions[-1][query[1]]
         elif query[1] in self.storage:
             del self.storage[query[1]]
 
@@ -47,12 +52,22 @@ class Terminal():
         '''Подсчитывает количество переменных с заданным значением.
            Пример запроса-query: ['COUNTS', '10']'''
 
+        if self.transactions:
+            counter = list(self.transactions[-1].values()).count(query[1])
+            print(counter)
+            return
+
         print(list(self.storage.values()).count(query[1]))
 
     def find_note(self, query) -> None:
         '''Выводит найденные установленные переменные для
            данного значения.
            Пример запроса-query: ['FIND', '10']'''
+
+        if self.transactions:
+            result = [key for key, value in self.transactions[-1].items() if value == query[1]]
+            print(' '.join(result))
+            return
 
         result = [key for key, value in self.storage.items() if value == query[1]]
         print(' '.join(result))
